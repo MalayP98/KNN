@@ -9,6 +9,7 @@ dataset = load_breast_cancer()
 x = dataset.data
 y = dataset.target
 y = y.reshape(y.shape[0], 1)
+classes = dataset.target_names.shape[0]
 
 
 def confusion_matrix(input, target):
@@ -82,19 +83,20 @@ class NearestNeighbourError(Exception):
 
 
 class KNN:
-    def __init__(self, data, neighbour, norm='L2'):
+    def __init__(self, data, neighbour, classes, norm='L2'):
         self.data = data
         self.neighbour = neighbour
         self.norm = norm
+        self.normValue = self.extract_norm()
+        self.classes = classes
 
-    def distance(self, input):
-        self.input = input
-        self.output_list = []
+    def distance(self):
+        self.output_list = {}
         for i in range(0, self.data.shape[0]):
             self.diffrence = np.abs(self.data[i]-self.input)
-            self.norm_out = np.power(self.diffrence, self.extract_norm())
-            self.output = np.power(np.sum(self.norm_out), 1/self.extract_norm())
-            self.output_list.append(self.output)
+            self.norm_out = np.power(self.diffrence, self.normValue)
+            self.output = np.power(np.sum(self.norm_out), 1/self.normValue)
+            self.output_list[self.output] = i
 
         return self.output_list
 
@@ -103,11 +105,19 @@ class KNN:
         return self.norm_value
 
     def nearest_neighbour_output(self):
-        pass
+        nearestPoints = []
+        sortedList = sorted(self.distance().items())
+        for i in range(self.normValue):
+            nearestPoints.append(sortedList[i][1])
+
+        return nearestPoints
 
     def majority_class(self):
         pass
 
     def predict(self, input):
-        pass
+        self.input = input
+        return self.nearest_neighbour_output()
 
+obj = KNN(np.array([[3,4,5,6], [1,2,3,4],[7,8,9,0], [0.3,0.4,0.007,0.67]]),2, classes)
+dis = obj.predict(np.array([[0,0,0,0]]))
