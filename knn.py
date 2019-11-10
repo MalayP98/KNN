@@ -82,15 +82,25 @@ class NearestNeighbourError(Exception):
 
 
 class KNN:
-    def __init__(self, neighbour, norm='L2'):
+    def __init__(self, data, neighbour, norm='L2'):
+        self.data = data
         self.neighbour = neighbour
         self.norm = norm
 
-    def distance(self):
-        pass
+    def distance(self, input):
+        self.input = input
+        self.output_list = []
+        for i in range(0, self.data.shape[0]):
+            self.diffrence = np.abs(self.data[i]-self.input)
+            self.norm_out = np.power(self.diffrence, self.extract_norm())
+            self.output = np.power(np.sum(self.norm_out), 1/self.extract_norm())
+            self.output_list.append(self.output)
+
+        return self.output_list
 
     def extract_norm(self):
-        pass
+        self.norm_value = int(self.norm[-1])
+        return self.norm_value
 
     def nearest_neighbour_output(self):
         pass
@@ -98,5 +108,6 @@ class KNN:
     def majority_class(self):
         pass
 
-    def predict(self):
+    def predict(self, input):
         pass
+
