@@ -83,17 +83,20 @@ class NearestNeighbourError(Exception):
 
 
 class KNN:
-    def __init__(self, data, neighbour, classes, norm='L2'):
+    def __init__(self, data, target, neighbour, classes, norm='L2'):
         self.data = data
+        self.target = target
         self.neighbour = neighbour
         self.norm = norm
         self.normValue = self.extract_norm()
         self.classes = classes
 
-    def distance(self):
+    def distance(self, input):
+        self.input = input
         self.output_list = {}
         for i in range(0, self.data.shape[0]):
             self.diffrence = np.abs(self.data[i]-self.input)
+            self.diffrence = self.diffrence.reshape(self.data.shape[1],1)
             self.norm_out = np.power(self.diffrence, self.normValue)
             self.output = np.power(np.sum(self.norm_out), 1/self.normValue)
             self.output_list[self.output] = i
@@ -104,27 +107,44 @@ class KNN:
         self.norm_value = int(self.norm[-1])
         return self.norm_value
 
-    def nearest_neighbour_output(self):
+    def nearest_neighbour_output(self, input):
+        self.input = input
         nearestPoints = []
-        sortedList = sorted(self.distance().items())
-        for i in range(self.normValue):
+        sortedList = sorted(self.distance(input).items())
+        for i in range(self.neighbour):
             nearestPoints.append(sortedList[i][1])
 
         print(nearestPoints)
         return nearestPoints
 
-    def majority_class(self):
+    def majority_class(self,input):
+        self.input = input
         self.classList = [0]*self.classes
-        for i in self.nearest_neighbour_output():
+        for i in self.nearest_neighbour_output(self.input):
             self.classList[int(self.target[i])] += 1
 
         return self.classList.index(max(self.classList))
 
 
-    def predict(self, input, target):
+    def predict(self, input):
         self.input = input
-        self.target = target
-        return self.majority_class()
+        return self.majority_class(self.input)
 
-obj = KNN(np.array([[3,4,5,6], [1,2,3,4],[7,8,9,0], [0.3,0.4,0.007,0.67]]),2, classes)
-dis = obj.predict(np.array([[0,0,0,0]]), np.array([[0],[1],[0],[1]]))
+
+xTrain, yTrain, xTest, yTest = train_test_split(x,y,0.8)
+featureScaling = FeatureScaling(x)
+featureScaling.Scaling()
+
+result = []
+
+knn = KNN(xTrain, yTrain, 3, classes)
+for i in range(xTest.shape[0]):
+    pred = knn.predict(xTest[i])
+    result.append(pred)
+
+confusion_matrix(np.array(result), yTest)
+
+
+
+
+
