@@ -110,14 +110,21 @@ class KNN:
         for i in range(self.normValue):
             nearestPoints.append(sortedList[i][1])
 
+        print(nearestPoints)
         return nearestPoints
 
     def majority_class(self):
-        pass
+        self.classList = [0]*self.classes
+        for i in self.nearest_neighbour_output():
+            self.classList[int(self.target[i])] += 1
 
-    def predict(self, input):
+        return self.classList.index(max(self.classList))
+
+
+    def predict(self, input, target):
         self.input = input
-        return self.nearest_neighbour_output()
+        self.target = target
+        return self.majority_class()
 
 obj = KNN(np.array([[3,4,5,6], [1,2,3,4],[7,8,9,0], [0.3,0.4,0.007,0.67]]),2, classes)
-dis = obj.predict(np.array([[0,0,0,0]]))
+dis = obj.predict(np.array([[0,0,0,0]]), np.array([[0],[1],[0],[1]]))
